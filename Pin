@@ -1,0 +1,80 @@
+#ping-pong
+
+from pygame import *
+from random import randint
+
+font.init()
+win_width = 700
+win_height = 500
+window = display.set_mode((win_width,win_height))
+display.set_caption('pinenenene ponge')
+run = True
+finish = False
+FPS = 60
+speed = 4
+speed_y = randint(1,3)
+speed_x= randint(1,3)
+clock = time.Clock()
+class GameSprite(sprite.Sprite):
+    def __init__(self,player_image,player_x,player_y,player_width,player_height,player_speed):
+        super().__init__()
+        self.image = transform.scale(image.load(player_image),(player_width,player_height))
+        self.speed = player_speed
+        self.rect = self.image.get_rect()
+        self.rect.x = player_x
+        self.rect.y = player_y
+    def reset(self):
+        window.blit(self.image,(self.rect.x,self.rect.y))
+
+class Player(GameSprite):
+    def update_l(self):
+        key_pressed = key.get_pressed()
+        if key_pressed[K_w] and self.rect.y  > 5:
+            self.rect.y += self.speed   
+        if key_pressed[K_s] and self.rect.y <  400:
+            self.rect.y -= self.speed
+    def update_r(self):
+        key_pressed =  key.get_pressed()
+        if key_pressed[K_UP] and  self.rect.y  > 5:
+            self.rect.y -= self.speed   
+        if key_pressed[K_DOWN] and self.rect.y < 400:
+            self.rect.y += self.speed
+bg = transform.scale(image.load("stoll.png"),(700,500))
+player = Player("AMOMG.png",10,300,90,120,speed)
+player2 = Player("AMOMG.png",590,300 ,90,120,speed)
+ball = GameSprite('pepper2.png',300,300,80,80,speed)
+
+font1 = font.SysFont('Arial',36)
+lose1 = font1.render('ПРОИГРАЛ 1', True, (100,0,0))
+lose2 = font1.render('ПРОИГРАЛ 2', True, (0,0,100))
+
+while run:
+    for e in event.get():
+        if e.type == QUIT:
+            run = False 
+
+    if not finish:
+        window.blit(bg,(0,0))
+        player.reset()
+        player.update_l()
+        player2.reset()
+        player2.update_r()
+        ball.reset()
+        ball.rect.x += speed_x
+        ball.rect.y += speed_y
+    if ball.rect.y > win_height - 100 or ball.rect.y < 0:
+        speed_y *= -1
+    if sprite.collide_rect(player,ball) or sprite.collide_rect(player2,ball):
+        speed_x *= -1
+    if ball.rect.x < 0:
+        finish = True
+        window.blit(lose1,(200,300))
+    if ball.rect.x > win_width - 80:
+        finish = True
+        window.blit(lose2,(200,300))
+  
+
+       
+
+    display.update()
+    clock.tick(FPS)
